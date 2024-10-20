@@ -7,7 +7,7 @@ services:
     environment:
       - NODE_ENV=development
       - NEST_HOST=localhost
-      - CLIENT_SECRET=mrOPTTVsfjho6n3S7dkRvfDeyFDxsYw3
+      - CLIENT_SECRET=tkm7M8wb1C38HMn8e3CDK6U3e4yib5Qt
       - INITIAL_ACCESS_TOKEN=eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJkMmFkNzZiOS04NGZjLTQ1MWYtYjg0Yy0wZWE1Y2E1OTc5MmUifQ.eyJleHAiOjE3MzgwNzA1MjksImlhdCI6MTcyOTQzMDUyOSwianRpIjoiMGM3YmFmNjEtZjkzNi00MzgzLWJmYjctMGMwMWQyMDQ3NmFmIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9uZXN0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9uZXN0IiwidHlwIjoiSW5pdGlhbEFjY2Vzc1Rva2VuIn0.pBXe1r2vqrWq0Xw3w8-hZs0RcoBOKist7wfmoE8BOcffd2uaq_WqderkYjUv9XkGqR-LuiO4BM27LKbP9jPi_A
     mem_limit: 1g
 
@@ -50,7 +50,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres:/docker-entrypoint-initdb.d
-      - ./nest/src/config/resources/db/postgres/csv:/csv
+      - ./postgres/csv:/csv
     environment:
       - POSTGRES_DB=buch
       - POSTGRES_HOST_AUTH_METHOD=trust
