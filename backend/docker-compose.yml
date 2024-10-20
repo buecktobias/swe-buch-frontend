@@ -1,0 +1,85 @@
+services:
+  nestjs:
+    image: tobiasbueck/swe-nest-buch:latest
+    ports:
+      - "3000:3000"
+    container_name: nestjs
+    environment:
+      - NODE_ENV=development
+      - NEST_HOST=localhost
+      - CLIENT_SECRET=mrOPTTVsfjho6n3S7dkRvfDeyFDxsYw3
+      - INITIAL_ACCESS_TOKEN=eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJkMmFkNzZiOS04NGZjLTQ1MWYtYjg0Yy0wZWE1Y2E1OTc5MmUifQ.eyJleHAiOjE3MzgwNzA1MjksImlhdCI6MTcyOTQzMDUyOSwianRpIjoiMGM3YmFmNjEtZjkzNi00MzgzLWJmYjctMGMwMWQyMDQ3NmFmIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9uZXN0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9uZXN0IiwidHlwIjoiSW5pdGlhbEFjY2Vzc1Rva2VuIn0.pBXe1r2vqrWq0Xw3w8-hZs0RcoBOKist7wfmoE8BOcffd2uaq_WqderkYjUv9XkGqR-LuiO4BM27LKbP9jPi_A
+    mem_limit: 1g
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=p
+      - KC_IMPORT=/opt/keycloak/data/import/nest-realm.json
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./keycloak/nest-realm.json:/opt/keycloak/data/import/nest-realm.json
+    mem_limit: 512m
+    depends_on:
+      - postgres
+    command:
+      - start-dev
+      - --import-realm
+
+  python-keycloak-manager:
+    build: ./keycloak
+    depends_on:
+      - keycloak
+    environment:
+      - KEYCLOAK_SERVER_URL=http://keycloak:8080/auth/
+      - KEYCLOAK_USERNAME=admin
+      - KEYCLOAK_PASSWORD=p
+      - KEYCLOAK_REALM_NAME=master
+      - KEYCLOAK_CLIENT_ID=admin-cli
+    links:
+      - keycloak
+    restart: on-failure
+  postgres:
+    image: postgres:16.4-bookworm
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
+      - ./nest/src/config/resources/db/postgres/csv:/csv
+    environment:
+      - POSTGRES_DB=buch
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    user: 'postgres:postgres'
+    security_opt:
+      - label:user:postgres
+      - no-new-privileges:true
+    hostname: postgres
+    container_name: postgres
+    restart: unless-stopped
+    mem_limit: 512m
+
+  pgadmin:
+    image: dpage/pgadmin4:8.12.0
+    ports:
+      - "8888:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/pgadmin-server.json:/pgadmin4/servers.json
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin@acme.com
+      - PGADMIN_DEFAULT_PASSWORD=p
+      - PGADMIN_DISABLE_POSTFIX=true
+    user: 'pgadmin:5050'
+    hostname: pgadmin
+    container_name: pgadmin
+    mem_limit: 512m
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  keycloak_data:
