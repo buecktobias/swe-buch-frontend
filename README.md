@@ -62,12 +62,14 @@ In the production environment, the setup is optimized and certain services are r
 To start the application in development:
 
 ```bash
+cd backend
 docker-compose up -d
 ```
 
 To start the application in production:
 
 ```bash
+cd backend
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
